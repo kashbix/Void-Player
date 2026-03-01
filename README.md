@@ -90,6 +90,3 @@ Void Player abandons simple `time.sleep()` UI loops in favor of a state-machine 
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
----
-
-Would you like me to draft up a standard `requirements.txt` file and an MIT `LICENSE` file for you so the repository is completely ready for the public?
