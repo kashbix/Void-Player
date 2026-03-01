@@ -1,0 +1,29 @@
+# Void Player – Python dependencies
+# Install: pip install -r requirements.txt
+
+# Audio playback
+python-vlc>=3.0.0
+
+# Audio metadata (local files)
+tinytag>=1.10.0
+
+# OLED display (SSD1306 over I2C)
+luma.core>=2.4.0
+luma.oled>=3.8.0
+
+# Images & fonts
+Pillow>=10.0.0
+
+# Bluetooth settings (Bleak)
+bleak>=0.21.0
+
+# System info
+psutil>=5.9.0
+
+# GPIO / hardware buttons (Raspberry Pi; optional on Windows)
+gpiozero>=1.6.0
+
+
+RPi.GPIO
+smbus2
+# sounddevice>=0.4.6
