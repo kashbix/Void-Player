@@ -22,8 +22,13 @@ psutil>=5.9.0
 
 # GPIO / hardware buttons (Raspberry Pi; optional on Windows)
 gpiozero>=1.6.0
-
-
 RPi.GPIO
 smbus2
+
+# Web Dashboard & API Server
+fastapi>=0.100.0
+uvicorn>=0.23.0
+python-multipart>=0.0.6
+
+# Optional/Unused
 # sounddevice>=0.4.6

@@ -1,95 +1,97 @@
-# Void Player
+Here is the complete, finalized `README.md` with the corrected startup instructions and all the new features perfectly integrated. You can copy and paste this directly into your GitHub repository.
 
-Void Player is a lightweight, headless audio player designed for the Raspberry Pi. Built entirely in Python, it bypasses the standard desktop environment to provide a pure, physical-button-driven music experience with a custom OLED UI.
+***
 
-The core of Void Player is built on a highly optimized, non-blocking state-machine architecture that handles hardware interrupts, dynamic audio routing, and headless Bluetooth device management without halting the main execution thread.
+# Void Player (Beta)
 
-## Features
+> **Status: Beta Release**  
+> Void Player is currently in its beta stage. While the core state-machine architecture, VLC playback engine, web dashboard, and headless integrations are stable, users may encounter edge cases depending on their specific hardware, rogue Bluetooth peripherals, or unsupported USB DACs. Bug reports and contributions are highly encouraged.
 
-* **State-Machine Architecture:** Implements a multi-threaded, non-blocking UI and hardware button management system. Menu states and background processes run concurrently without thread starvation.
-* **Headless Bluetooth Management:** Features a custom BlueZ integration via `bluetoothctl` subprocesses. Handles device scanning, filtering, pairing, trusting, and connecting entirely through the OLED interface without requiring a keyboard or desktop GUI.
-* **Dynamic Audio Routing:** Seamlessly hot-swaps active audio output between Bluetooth sinks, the Pi's built-in audio jack, and external USB DACs. Built on PulseAudio/PipeWire and managed via `pactl`.
-* **Hardware Interrupts:** Highly optimized GPIO button debouncing using `gpiozero`. Configured for instantaneous, snappy menu navigation to mimic the tactile feel of classic dedicated MP3 players.
-* **OLED Display Interface:** Dynamic, multi-level menus and UI elements rendered via the Pillow (PIL) library over the I2C bus.
+Void Player is a lightweight, high-performance headless audio engine designed specifically for the Raspberry Pi. Built entirely in Python, it bypasses standard desktop environments to deliver a pure, physical-button-driven music experience with a dynamic OLED interface, paired with a sleek, localized web dashboard for telemetry and hardware management.
+
+At its core, Void Player utilizes a decoupled, non-blocking state-machine architecture. It handles hardware interrupts, dynamic audio routing, multithreaded display rendering, and SQLite telemetry without relying on standard `time.sleep()` UI loops, preventing thread starvation and ensuring a highly responsive tactile experience.
+
+## Core Features
+
+* **Local Web Dashboard & Hardware Sync:** A built-in FastAPI web server provides a sleek, bento-box style interface to control the physical hardware over your local network. Adjust boot volume, auto-play behavior, and OLED sleep timers, with changes syncing instantly to the hardware via internal JSON pipelines.
+* **Granular Telemetry Engine:** A lightweight SQLite database tracks your top tracks, artists, genres, and listening habits locally. It calculates exactly how long you listen to a track versus skipping it. No cloud tracking, no subscriptions.
+* **Decoupled State-Machine Architecture:** Uses a centralized event queue and an active button manager (`btn_mgr`) to safely bind and unbind GPIO interrupts across different menu states.
+* **OLED Burn-In Protection:** Features a configurable sleep timer that actively monitors playback states. The screen gracefully blacks out when idle and features "Wake on Interaction" logic to prevent accidental skips when waking the display.
+* **Headless Network & Power Management:** Includes a full physical power menu for safe reboots/shutdowns. The web dashboard also features a secure Wi-Fi configuration portal, allowing you to move the Pi to new networks without ever opening an SSH terminal.
+* **VLC-Powered Playback Engine:** Supports FLAC, WAV, and MP3 formats with dynamic ID3 tag extraction via `tinytag`. Includes an isolated background thread for seamlessly wrapping long track titles and rendering playback states smoothly.
 
 ## Hardware Requirements
 
-* **SBC:** Raspberry Pi (Zero 2 W, 3, or 4 recommended)
+* **SBC:** Raspberry Pi (Zero 2 W, 3, or 4 recommended for optimal VLC and PipeWire performance)
 * **Display:** 128x64 I2C OLED Display (e.g., SSD1306)
-* **Input:** 4x Tactile Push Buttons (Configured for Up, Down, Center/Select, Menu/Back)
-* **Audio:** USB DAC (Optional, highly recommended for audiophile output) or Bluetooth Audio Device
+* **Input:** 6x Tactile Push Buttons
+* **Audio Output:** USB DAC (recommended for high-fidelity output) or a paired Bluetooth device.
 
-## Software Dependencies
+## Hardware Setup & Wiring
 
-This project relies on standard Linux audio and Bluetooth stacks. Ensure the following are installed on your system:
+Void Player relies on the Raspberry Pi's internal pull-up resistors. Each tactile button must be wired directly between its designated GPIO pin and any available Ground (GND) pin on the Pi. No external pull-up or pull-down resistors are required.
 
-* Python 3.x
-* BlueZ (for Bluetooth stack)
-* PulseAudio or PipeWire (with `pulseaudio-utils` and `pulseaudio-module-bluetooth`)
+### GPIO Button Configuration
 
-## Hardware Wiring & Pinout
-
-Void Player utilizes the Raspberry Pi's internal pull-up resistors. Each tactile button should be wired directly between its designated GPIO pin and any available Ground (GND) pin on the Pi. No external resistors are required.
-
-### Button Configuration (Default)
-* **Up Button:** GPIO 17
-* **Down Button:** GPIO 27
-* **Center / Select:** GPIO 22
 * **Menu / Back:** GPIO 24
+* **Center / Select:** GPIO 18
+* **Next Track / Down:** GPIO 22
+* **Previous Track / Up:** GPIO 27
+* **Volume Up:** GPIO 17
+* **Volume Down:** GPIO 23
 
-### OLED Display (I2C Configuration)
-The 128x64 display connects via the standard I2C pins.
+### OLED Display (I2C)
+
+The SSD1306 display connects via the standard hardware I2C pins:
+
 * **VCC:** 3.3V (Pin 1)
-* **GND:** Ground (Pin 6 or 9)
+* **GND:** Ground (Pin 6 or Pin 9)
 * **SDA:** GPIO 2 (Pin 3)
 * **SCL:** GPIO 3 (Pin 5)
 
-*(Note: Pin assignments can be easily modified in the `buttons.py` dictionary to fit your specific custom PCB or perfboard layout.)*
+## Software Dependencies
 
-### Python Packages
+Void Player requires the standard Linux audio and Bluetooth stacks to function correctly, alongside the web backend utilities.
 
-* `gpiozero`
-* `Pillow`
-* `RPi.GPIO` or `lgpio`
-* `luma.oled` (or equivalent display driver)
-
-## Installation
-
-**1. Clone the repository:**
-
-```bash
-git clone https://github.com/YOUR_USERNAME/void-player.git
-cd void-player
-
-```
-
-**2. Configure the Linux Audio and Bluetooth Stack:**
-Ensure the Pi is configured to run Bluetooth agents and PulseAudio/PipeWire sinks.
-
+**System Packages:**
+Ensure your Raspberry Pi has the following backend utilities installed:
 ```bash
 sudo apt-get update
-sudo apt-get install pulseaudio-utils pulseaudio-module-bluetooth
-
+sudo apt-get install vlc pulseaudio-utils pulseaudio-module-bluetooth bluez
 ```
 
-**3. Run the application:**
+**Python Requirements:**
+Install the necessary Python libraries using pip:
+```bash
+pip install -r requirements.txt
+```
 
+## Installation & Deployment
+
+1. **Clone the repository:**
+```bash
+git clone https://github.com/kashbix/void-player.git
+cd void-player
+```
+
+2. **Prepare the Music Directory:**
+By default, the player scans for media in `/home/$USER/Music`. Ensure your FLAC, WAV, or MP3 files are placed in this directory, or upload them directly via the Web Dashboard.
+
+3. **Configure Fonts (Optional):**
+The UI uses `DejaVuSans-Bold.ttf` for crisp rendering. If this font is not available on your system, the `configs.py` file will automatically fall back to the default Pillow font.
+
+4. **Run the Application:**
+Start the core hardware engine and web dashboard by executing your main Python script(s):
 ```bash
 python3 main.py
 
+# If your web dashboard is configured in a separate file, run it alongside the main player:
+# python3 server.py
 ```
+*Access the dashboard by navigating to `http://<YOUR_PI_IP>:8000` on any device connected to the same network.*
 
-*(Note: It is recommended to run Void Player as a `systemd` service for automatic startup on boot.)*
-
-## Architecture Overview
-
-Void Player abandons simple `time.sleep()` UI loops in favor of a state-machine design. The button manager (`btn_mgr`) actively binds and unbinds callback functions depending on the active menu state. This allows the system to instantly break out of loops, release hardware locks, and safely launch sub-modules (like Bluetooth scanning or audio routing) without overlapping UI draws or ghost inputs.
-
+*Deployment Note: For a true headless appliance experience, it is highly recommended to configure your scripts to run as `systemd` background services on boot.*
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-Would you like me to draft up a standard `requirements.txt` file and an MIT `LICENSE` file for you so the repository is completely ready for the public?
+This project is open-source and available under the MIT License. See the LICENSE file for further details.

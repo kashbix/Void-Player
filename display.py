@@ -94,6 +94,7 @@ def file_share_screen():
         
         # We split the user and IP onto two lines so it guarantees a perfect fit!
         draw.text((2, 25), f"User: {file_share.username}", font=configs.font_below, fill=255)
+        draw.text((2, 35), f"IP:   {file_share.ip_address}", font=configs.font_below, fill=255)
         draw.text((2, 45), f"IP:   {file_share.ip_address}", font=configs.font_below, fill=255)
 
 def system_info_display(info):
@@ -155,3 +156,30 @@ def bluetooth_menu(device_list, select_index=0):
                 draw.text((2, y_pos), f"> {item}", font=configs.font_menu, fill=255)
             else:
                 draw.text((10, y_pos), item, font=configs.font_below, fill=255)
+
+def power_menu_screen(selected_idx):
+    """Draws the Power/Settings menu on the OLED."""
+    options = ["Restart", "Power Off", "Back"]
+    
+    with canvas(device) as draw:
+        # Match the header placement of the other menus
+        draw.text((2, 5), "SYSTEM POWER", font=configs.font_menu, fill=255)
+        
+        # Match the arrow ">" highlight style
+        for i, opt in enumerate(options):
+            y_pos = 20 + (i * 12)
+            if i == selected_idx:
+                draw.text((2, y_pos), f"> {opt}", font=configs.font_menu, fill=255)
+            else:
+                draw.text((10, y_pos), opt, font=configs.font_below, fill=255) 
+
+def generic_message_screen(text):
+    """Draws a simple message before shutting down/restarting."""
+    with canvas(device) as draw:
+        # Actually use the 'text' variable passed into the function
+        draw.text((10, 25), text, font=configs.font_menu, fill=255)
+
+def blank_screen():
+    """Draws an empty canvas to turn off OLED pixels and prevent burn-in."""
+    with canvas(device) as draw:
+        pass # Drawing nothing turns the pixels off

@@ -11,8 +11,3 @@ ENV/
 # OS generated files
 .DS_Store
 Thumbs.db
-
-# Any local test music you might have dropped in the folder
-*.mp3
-*.flac
-*.wav

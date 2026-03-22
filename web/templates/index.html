@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Void Player | Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #151515;
+            --bg-card: #1e1e1e;
+            --text-main: #ffffff;
+            --text-muted: #8a8a8a;
+            --accent-green: #e2eedc;
+            --border-color: #333333; /* Added for the navbar */
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        /* --- Top Navigation Bar --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 40px; }
+        .nav-logo { font-size: 20px; font-weight: 600; letter-spacing: 1px; }
+        
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--text-main); }
+        .nav-links a.active { color: var(--text-main); font-weight: 600; }
+        .nav-right { font-size: 12px; color: var(--text-muted); }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 40px; /* Matched spacing with files.html */
+        }
+
+        h1 { font-weight: 400; font-size: 28px; margin: 0; }
+        .time { color: var(--text-muted); font-size: 18px; }
+
+        /* Dashboard Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Interactive Elements */
+        .click-box { cursor: pointer; user-select: none; }
+        .click-box:active { transform: scale(0.97); }
+        .box-header { display: flex; justify-content: space-between; align-items: center; }
+        .state-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        /* Row 1 Layout */
+        .card-trends { grid-column: span 3; }
+        .card-active { grid-column: span 1; position: relative; overflow: hidden; }
+
+        .trends-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 20px;}
+        .trend-item h3 { font-size: 14px; color: var(--text-muted); font-weight: 400; margin-bottom: 10px; }
+        .trend-item .metric { font-size: 32px; font-weight: 300; margin-top: 10px; }
+        .trend-item .subtext { font-size: 12px; color: var(--text-muted); }
+
+        .wireframe-art {
+            height: 120px;
+            border: 1px dashed var(--accent-green);
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-green);
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background-size: contain; 
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        #activeBar { transition: width 5s linear; }
+
+        /* Row 2 Layout */
+        .card-mileage { grid-column: span 1; background-color: var(--accent-green); color: #111; }
+        .card-mileage .state-label { background: rgba(0,0,0,0.1); color: #333; }
+        .huge-metric { font-size: 48px; font-weight: 300; margin: 0; }
+        
+        .card-topsong { grid-column: span 1; }
+        .card-topsong .state-label { background: #333; color: var(--text-muted); }
+        .song-title { font-size: 24px; font-weight: 300; margin-top: auto; margin-bottom: 5px; color: var(--accent-green); }
+        .song-artist { font-size: 14px; color: var(--text-muted); }
+
+        .card-weekly { grid-column: span 1; }
+        .card-peak { grid-column: span 1; }
+        .peak-metric { font-size: 36px; font-weight: 300; margin-bottom: 5px; color: var(--text-main); }
+
+        /* Row 3 Layout (New Modules) */
+        .card-health { grid-column: span 2; }
+        .card-genre { grid-column: span 2; }
+
+        .health-bar-container { margin-top: 18px; }
+        .health-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+        .health-track { width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
+        .health-fill { height: 100%; background: var(--text-main); transition: width 1s ease, background-color 0.5s ease; }
+
+        /* Chart Canvas Constraints */
+        canvas { max-height: 100px; width: 100%; }
+        .chart-large canvas { max-height: 140px; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="nav-left">
+            <div class="nav-logo">VOID.</div>
+            <div class="nav-links">
+                <a href="/" class="active">Overview</a>
+                <a href="/files">Files</a>
+                <a href="/about">About</a>
+            </div>
+        </div>
+        <div class="nav-right">System Online &middot; Pi Zero 2 W</div>
+    </nav>
+
+    <header>
+        <h1>Overview</h1>
+        <div class="time">--:-- -- <span style="font-size: 12px;">Time</span></div>
+    </header>
+
+    <div class="dashboard-grid">
+        
+        <!-- ROW 1: Trends & Active Deck -->
+        <div class="card card-trends click-box" onclick="cycleArtists()">
+            <div class="box-header">
+                <h2 style="font-size: 18px; margin: 0;">Top Artists</h2>
+                <span class="state-label" id="artistsState" style="background: #333; color: var(--text-muted);">Month</span>
+            </div>
+            <div class="trends-grid">
+                <div class="trend-item" style="opacity: 0.3;">
+                    <h3>Awaiting Data...</h3>
+                    <div><canvas id="chartArtist1"></canvas></div>
+                    <div class="metric">0</div>
+                    <div class="subtext">Tracks played</div>
+                </div>
+                <div class="trend-item" style="opacity: 0.3;">
+                    <h3>Awaiting Data...</h3>
+                    <div><canvas id="chartArtist2"></canvas></div>
+                    <div class="metric">0</div>
+                    <div class="subtext">Tracks played</div>
+                </div>
+                <div class="trend-item" style="opacity: 0.3;">
+                    <h3>Awaiting Data...</h3>
+                    <div><canvas id="chartArtist3"></canvas></div>
+                    <div class="metric">0</div>
+                    <div class="subtext">Tracks played</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-active">
+            <h2 style="font-size: 18px; margin: 0;">Active Deck &middot;&middot;&middot;</h2>
+            <div id="activeStatus" style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Player Connected</div>
+            <div class="wireframe-art">[ IDLE ]</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
+                <span>Current Track Progress</span>
+                <span id="activePct" style="font-size: 20px;">0%</span>
+            </div>
+            <div style="width: 100%; height: 2px; background: #333; margin-top: 10px;">
+                <div id="activeBar" style="width: 0%; height: 100%; background: var(--text-main);"></div>
+            </div>
+        </div>
+
+        <!-- ROW 2: Tracking, Rotation, Weekly, Habits -->
+        <div class="card card-mileage click-box" onclick="cycleTracking()">
+            <div class="box-header">
+                <h2 style="font-size: 18px; margin: 0;">Tracking</h2>
+                <span class="state-label" id="trackingState">All-Time</span>
+            </div>
+            <div style="margin-top: 40px;">
+                <div class="huge-metric" id="hoursMetric">0</div>
+                <div style="font-size: 12px;">Minutes Listened</div>
+            </div>
+        </div>
+
+        <div class="card card-topsong click-box" onclick="cycleTopSong()">
+            <div class="box-header">
+                <h2 style="font-size: 18px; margin: 0;">Rotation</h2>
+                <span class="state-label" id="songState">Month</span>
+            </div>
+            <div style="margin-top: 40px;">
+                <div class="song-title" id="songTitle">...</div>
+                <div class="song-artist" id="songArtist">...</div>
+            </div>
+        </div>
+
+        <div class="card card-weekly">
+            <div class="box-header" style="margin-bottom: 10px;">
+                <h2 style="font-size: 18px; margin: 0;">Detailed report</h2>
+                <span style="border: 1px solid #444; padding: 2px 10px; border-radius: 12px; font-size: 12px;">Week &darr;</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Tracks played per day</div>
+            <div class="chart-large"><canvas id="chartWeekly"></canvas></div>
+        </div>
+
+        <div class="card card-peak">
+            <h2 style="font-size: 18px; margin: 0;">Listening Habits</h2>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Peak activity zones</div>
+            <div id="peakLabel" class="peak-metric">None</div>
+            <div id="peakTimeLabel" style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">--</div>
+            <div><canvas id="chartTimeline"></canvas></div>
+        </div>
+
+        <!-- ROW 3: Hardware Health & Sonic Profile -->
+        <div class="card card-health">
+            <div class="box-header">
+                <h2 style="font-size: 18px; margin: 0;">Hardware Vitals</h2>
+                <span style="font-size: 12px; color: var(--text-muted);">Pi Zero 2 W</span>
+            </div>
+            <div style="margin-top: 10px;">
+                <div class="health-bar-container">
+                    <div class="health-label"><span>CPU Temp</span><span id="cpuVal" style="color: var(--text-main);">0°C</span></div>
+                    <div class="health-track"><div id="cpuFill" class="health-fill" style="width: 0%;"></div></div>
+                </div>
+                <div class="health-bar-container">
+                    <div class="health-label"><span>RAM Usage</span><span id="ramVal" style="color: var(--text-main);">0%</span></div>
+                    <div class="health-track"><div id="ramFill" class="health-fill" style="width: 0%;"></div></div>
+                </div>
+                <div class="health-bar-container">
+                    <div class="health-label"><span>Disk Space</span><span id="diskVal" style="color: var(--text-main);">0%</span></div>
+                    <div class="health-track"><div id="diskFill" class="health-fill" style="width: 0%;"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-genre">
+            <div class="box-header">
+                <h2 style="font-size: 18px; margin: 0;">Sonic Profile</h2>
+                <span style="font-size: 12px; color: var(--text-muted);">All-Time Top Genres</span>
+            </div>
+            <div style="display: flex; align-items: center; height: 100%; margin-top: 15px;">
+                <div style="width: 50%; height: 130px;"><canvas id="chartGenre"></canvas></div>
+                <div id="genreLabels" style="width: 50%; font-size: 13px; padding-left: 20px;">
+                    <!-- Legend generated by JS -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- 1. Global State ---
+        const apiStates = ['Week', 'Month', 'All-Time'];
+        let trackIndex = 2; 
+        let songIndex = 1; 
+        let artistIndex = 1;
+
+        // --- 2. Live Digital Clock ---
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            
+            document.querySelector('.time').innerHTML = `${hours}:${minutes} ${ampm} <span style="font-size: 12px;">Time</span>`;
+        }
+
+        // --- 3. Chart.js Configurations ---
+        Chart.defaults.color = '#8a8a8a';
+        Chart.defaults.font.family = 'Inter';
+        const commonOptions = { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { legend: { display: false }, tooltip: { enabled: false } }, 
+            scales: { x: { display: false }, y: { display: false, min: 0, suggestedMax: 5 } }, 
+            animation: { duration: 0 } 
+        };
+
+        const createMiniBar = (ctxId) => {
+            return new Chart(document.getElementById(ctxId), {
+                type: 'bar',
+                data: { labels: ['1','2','3','4','5','6','7','8','9','10'], datasets: [{ data: [0,0,0,0,0,0,0,0,0,0], backgroundColor: '#ffffff', borderRadius: 2, minBarLength: 2 }] },
+                options: commonOptions
+            });
+        };
+
+        const artistCharts = [
+            createMiniBar('chartArtist1'),
+            createMiniBar('chartArtist2'),
+            createMiniBar('chartArtist3')
+        ];
+
+        const weeklyChart = new Chart(document.getElementById('chartWeekly'), {
+            type: 'bar',
+            data: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ data: [0,0,0,0,0,0,0], backgroundColor: '#333333', borderRadius: 4, minBarLength: 4 }] },
+            options: { ...commonOptions, scales: { x: { display: true, grid: { display: false }, border: { display: false } }, y: { display: false, min: 0, suggestedMax: 10 } } }
+        });
+
+        const habitsChart = new Chart(document.getElementById('chartTimeline'), {
+            type: 'line',
+            data: { labels: ['8AM', '12PM', '4PM', '8PM', '12AM'], datasets: [{ data: [0,0,0,0,0], borderColor: '#444', borderWidth: 2, pointBackgroundColor: ['#333', '#333', '#333', '#333', '#333'], pointRadius: [4, 4, 4, 4, 4], tension: 0.4 }] },
+            options: { ...commonOptions, scales: { x: { display: true, grid: { display: false }, border: { display: false } }, y: { display: false, min: 0, suggestedMax: 5 } } }
+        });
+
+        const genreChart = new Chart(document.getElementById('chartGenre'), {
+            type: 'doughnut',
+            data: { 
+                labels: [], 
+                datasets: [{ 
+                    data: [], 
+                    backgroundColor: ['#e2eedc', '#8a8a8a', '#444444', '#222222'], 
+                    borderWidth: 0 
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                cutout: '75%', 
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                animation: { duration: 0 }
+            }
+        });
+
+        // --- 4. API Fetch Functions ---
+
+        // -> Tracking Box
+        async function fetchTrackingData(timeframe) {
+            try {
+                const res = await fetch(`/api/stats/tracking?timeframe=${timeframe}`);
+                const data = await res.json();
+                document.getElementById('hoursMetric').innerText = data.value;
+            } catch (e) { document.getElementById('hoursMetric').innerText = "Err"; }
+        }
+
+        function cycleTracking() {
+            trackIndex = (trackIndex + 1) % 3;
+            document.getElementById('trackingState').innerText = apiStates[trackIndex];
+            document.getElementById('hoursMetric').innerText = "..."; 
+            fetchTrackingData(apiStates[trackIndex]);
+        }
+
+        // -> Rotation Box
+        async function fetchTopSongData(timeframe) {
+            try {
+                const res = await fetch(`/api/stats/topsong?timeframe=${timeframe}`);
+                const data = await res.json();
+                document.getElementById('songTitle').innerText = data.title;
+                document.getElementById('songArtist').innerText = data.artist;
+            } catch (e) {
+                document.getElementById('songTitle').innerText = "Err";
+            }
+        }
+
+        function cycleTopSong() {
+            songIndex = (songIndex + 1) % 3;
+            document.getElementById('songState').innerText = apiStates[songIndex];
+            document.getElementById('songTitle').innerText = "...";
+            document.getElementById('songArtist').innerText = "...";
+            fetchTopSongData(apiStates[songIndex]);
+        }
+
+        // -> Top Artists Box
+        async function fetchTopArtists(timeframe) {
+            try {
+                const res = await fetch(`/api/stats/topartists?timeframe=${timeframe}`);
+                const data = await res.json();
+                const items = document.querySelectorAll('.trend-item');
+                
+                for (let i = 0; i < 3; i++) {
+                    if (data.artists[i]) {
+                        const artist = data.artists[i];
+                        const firstHalf = artist.trend.slice(0, 5).reduce((a,b)=>a+b, 0);
+                        const secondHalf = artist.trend.slice(5, 10).reduce((a,b)=>a+b, 0);
+                        const arrow = secondHalf >= firstHalf ? '&uarr;' : '&darr;';
+                        
+                        items[i].querySelector('h3').innerHTML = `${artist.name} ${arrow}`;
+                        items[i].querySelector('.metric').innerText = artist.count;
+                        items[i].style.opacity = '1'; 
+                        
+                        artistCharts[i].data.datasets[0].data = artist.trend;
+                        artistCharts[i].update();
+                    } else {
+                        items[i].querySelector('h3').innerHTML = `Awaiting Data...`;
+                        items[i].querySelector('.metric').innerText = "0";
+                        items[i].style.opacity = '0.3'; 
+                        
+                        artistCharts[i].data.datasets[0].data = [0,0,0,0,0,0,0,0,0,0];
+                        artistCharts[i].update();
+                    }
+                }
+            } catch (e) { console.error("Artist fetch failed"); }
+        }
+
+        function cycleArtists() {
+            artistIndex = (artistIndex + 1) % 3;
+            document.getElementById('artistsState').innerText = apiStates[artistIndex];
+            
+            const items = document.querySelectorAll('.trend-item');
+            items.forEach(item => {
+                if (item.style.opacity !== '0.3') { 
+                    item.querySelector('.metric').innerText = "...";
+                }
+            });
+            fetchTopArtists(apiStates[artistIndex]);
+        }
+
+        // -> Active Deck RAM Polling
+        async function pollActiveDeck() {
+            try {
+                const res = await fetch('/api/stats/activedeck');
+                const data = await res.json();
+                
+                const artBox = document.querySelector('.wireframe-art');
+                const pctText = document.getElementById('activePct');
+                const progressBar = document.getElementById('activeBar');
+                const connText = document.getElementById('activeStatus');
+
+                if (data.is_playing) {
+                    if (data.has_cover) {
+                        artBox.style.backgroundImage = `url('/api/stats/cover?t=${encodeURIComponent(data.title)}')`;
+                        artBox.style.border = "none";
+                        artBox.innerText = ""; 
+                    } else {
+                        artBox.style.backgroundImage = "none";
+                        artBox.style.border = "1px dashed var(--accent-green)";
+                        artBox.innerText = `[ ${data.title} ]`;
+                    }
+                    pctText.innerText = `${data.progress_pct}%`;
+                    progressBar.style.width = `${data.progress_pct}%`;
+                    progressBar.style.background = "var(--accent-green)";
+                    connText.innerText = "Playing";
+                } else {
+                    artBox.style.backgroundImage = "none";
+                    artBox.style.border = "1px dashed var(--accent-green)";
+                    artBox.innerText = "[ IDLE ]";
+                    pctText.innerText = "0%";
+                    progressBar.style.width = "0%";
+                    progressBar.style.background = "var(--text-main)";
+                    connText.innerText = "Player Connected";
+                }
+            } catch (e) { console.error("Deck polling failed"); }
+        }
+
+        // -> Static Charts (Weekly & Habits)
+        async function loadWeeklyChart() {
+            try {
+                const res = await fetch('/api/stats/weekly');
+                const json = await res.json();
+                weeklyChart.data.datasets[0].data = json.data;
+                const maxVal = Math.max(...json.data);
+                weeklyChart.data.datasets[0].backgroundColor = (ctx) => ctx.raw === maxVal && maxVal > 0 ? '#e2eedc' : '#333333';
+                weeklyChart.update();
+            } catch (e) {}
+        }
+
+        async function loadHabitsChart() {
+            try {
+                const res = await fetch('/api/stats/habits');
+                const json = await res.json();
+                habitsChart.data.datasets[0].data = json.data;
+                document.getElementById('peakLabel').innerText = json.peak_label || "None";
+                document.getElementById('peakTimeLabel').innerText = json.peak_time || "";
+                
+                const peakIdx = json.peak_index !== undefined ? json.peak_index : 4;
+                const bgColors = ['#333', '#333', '#333', '#333', '#333'];
+                const radii = [4, 4, 4, 4, 4];
+                
+                if (Math.max(...json.data) > 0) {
+                    bgColors[peakIdx] = '#e2eedc';
+                    radii[peakIdx] = 10;
+                }
+                
+                habitsChart.data.datasets[0].pointBackgroundColor = bgColors;
+                habitsChart.data.datasets[0].pointRadius = radii;
+                habitsChart.update();
+            } catch (e) {}
+        }
+
+        // -> Hardware Health
+        async function fetchHealth() {
+            try {
+                const res = await fetch('/api/sys/health');
+                const data = await res.json();
+                
+                document.getElementById('cpuVal').innerText = `${data.cpu_temp}°C`;
+                const cpuFill = document.getElementById('cpuFill');
+                cpuFill.style.width = `${data.cpu_temp}%`;
+                cpuFill.style.backgroundColor = data.cpu_temp > 65 ? '#ff4444' : 'var(--text-main)';
+
+                document.getElementById('ramVal').innerText = `${data.ram_pct}%`;
+                document.getElementById('ramFill').style.width = `${data.ram_pct}%`;
+
+                document.getElementById('diskVal').innerText = `${data.disk_pct}%`;
+                document.getElementById('diskFill').style.width = `${data.disk_pct}%`;
+            } catch(e) {}
+        }
+
+        // -> Sonic Profile (Genres)
+        async function fetchGenres() {
+            try {
+                const res = await fetch('/api/stats/genres');
+                const data = await res.json();
+                
+                genreChart.data.labels = data.labels;
+                genreChart.data.datasets[0].data = data.values;
+                genreChart.update();
+                
+                // Build the custom HTML legend
+                let html = "";
+                const colors = genreChart.data.datasets[0].backgroundColor;
+                data.labels.forEach((label, i) => {
+                    html += `
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <div style="width: 10px; height: 10px; border-radius: 50%; background: ${colors[i]}; margin-right: 12px;"></div>
+                        <span style="color: ${i === 0 ? 'var(--text-main)' : 'var(--text-muted)'};">${label}</span>
+                    </div>`;
+                });
+                document.getElementById('genreLabels').innerHTML = html;
+            } catch(e) {}
+        }
+
+        // --- 5. Boot Sequence ---
+        document.addEventListener("DOMContentLoaded", () => {
+            // Start the Clock
+            updateClock();
+            setInterval(updateClock, 1000); 
+
+            // Load all database metrics
+            fetchTrackingData(apiStates[trackIndex]);
+            fetchTopSongData(apiStates[songIndex]);
+            fetchTopArtists(apiStates[artistIndex]);
+            loadWeeklyChart();
+            loadHabitsChart();
+            fetchGenres();
+            
+            // Start polling real-time features
+            fetchHealth();
+            setInterval(fetchHealth, 10000); // Check hardware every 10 seconds
+            
+            pollActiveDeck();
+            setInterval(pollActiveDeck, 5000); // Check song progress every 5 seconds
+        });
+    </script>
+</body>
+</html>

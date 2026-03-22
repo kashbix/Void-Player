@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Void Player | Files</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #151515;
+            --bg-card: #1e1e1e;
+            --text-main: #ffffff;
+            --text-muted: #8a8a8a;
+            --accent-green: #e2eedc;
+            --border-color: #333333;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 40px; }
+        .nav-logo { font-size: 20px; font-weight: 600; letter-spacing: 1px; }
+        
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--text-main); }
+        .nav-links a.active { color: var(--text-main); font-weight: 600; }
+        .nav-right { font-size: 12px; color: var(--text-muted); }
+
+        /* INCREASED MARGIN BELOW HEADER FOR MORE SPACE */
+        header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; }
+        h1 { font-weight: 400; font-size: 28px; margin: 0; }
+
+        .card { background-color: var(--bg-card); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+
+        .dropzone {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background-color: transparent;
+            margin-bottom: 40px; /* Added spacing between dropzone and the list below it too */
+        }
+        
+        .dropzone.dragover { border-color: var(--accent-green); background-color: rgba(226, 238, 220, 0.05); color: var(--accent-green); }
+        .drop-icon { font-size: 32px; margin-bottom: 10px; }
+        .drop-text { font-size: 16px; font-weight: 300; }
+        .drop-subtext { font-size: 12px; margin-top: 8px; opacity: 0.5; }
+
+        .file-list-header {
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr;
+            padding: 0 10px 15px 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .file-row {
+            display: grid;
+            grid-template-columns: 3fr 1fr 1fr;
+            padding: 15px 10px;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 14px;
+            font-weight: 300;
+            transition: background 0.1s;
+        }
+        
+        .file-row:hover { background-color: rgba(255,255,255,0.02); border-radius: 8px; }
+        .file-row:last-child { border-bottom: none; }
+        .file-name { color: var(--text-main); word-break: break-all; padding-right: 15px; }
+        .file-size { color: var(--text-muted); }
+        
+        .delete-btn {
+            justify-self: end;
+            color: #ff4444;
+            background: none;
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s, background 0.2s;
+        }
+        .file-row:hover .delete-btn { opacity: 1; }
+        .delete-btn:hover { background: rgba(255, 68, 68, 0.1); }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-left">
+            <div class="nav-logo">VOID.</div>
+            <div class="nav-links">
+                <a href="/">Overview</a>
+                <a href="/files" class="active">Files</a>
+                <a href="/about">About</a>
+            </div>
+        </div>
+        <div class="nav-right">System Online &middot; Pi Zero 2 W</div>
+    </nav>
+
+    <header>
+        <h1>Library Management</h1>
+        <div style="font-size: 14px; color: var(--text-muted);">Capacity: <span id="diskCapacity" style="color: var(--text-main);">Calculating...</span></div>
+    </header>
+
+    <!-- Hidden file input for clicking to upload -->
+    <input type="file" id="fileInput" multiple accept=".mp3,.flac,.wav,.m4a,.ogg" style="display: none;">
+
+    <div class="dropzone" id="dropzone">
+        <div class="drop-icon">&uarr;</div>
+        <div class="drop-text" id="dropText">Drag & Drop Audio Files Here</div>
+        <div class="drop-subtext">Supports .mp3, .flac, .wav, .m4a, .ogg</div>
+    </div>
+
+    <div class="card">
+        <div class="file-list-header">
+            <div>Track Name</div>
+            <div>File Size</div>
+            <div style="text-align: right;">Action</div>
+        </div>
+        
+        <div id="fileContainer">
+            <!-- Populated by JavaScript -->
+            <div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 14px;">Loading library...</div>
+        </div>
+    </div>
+
+    <script>
+        // --- Fetch Disk Capacity ---
+        async function loadCapacity() {
+            try {
+                const res = await fetch('/api/sys/health');
+                const data = await res.json();
+                const freePct = 100 - data.disk_pct; // Calculate free space percentage
+                document.getElementById('diskCapacity').innerText = `${freePct}% Free`;
+            } catch(e) {
+                document.getElementById('diskCapacity').innerText = `Unknown`;
+            }
+        }
+
+        // --- Library Loading and Deletion ---
+        async function loadFiles() {
+            try {
+                const res = await fetch('/api/files');
+                const data = await res.json();
+                const container = document.getElementById('fileContainer');
+                
+                if (data.files.length === 0) {
+                    container.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 14px;">Your library is empty. Upload some music above!</div>`;
+                    return;
+                }
+
+                container.innerHTML = '';
+                data.files.forEach(f => {
+                    container.innerHTML += `
+                    <div class="file-row">
+                        <div class="file-name">${f.name}</div>
+                        <div class="file-size">${f.size}</div>
+                        <button class="delete-btn" onclick="deleteFile('${f.name}')">Remove</button>
+                    </div>`;
+                });
+            } catch(e) {
+                console.error("Failed to fetch files:", e);
+                document.getElementById('fileContainer').innerHTML = `<div style="padding: 20px; text-align: center; color: #ff4444; font-size: 14px;">Failed to load file list.</div>`;
+            }
+        }
+
+        async function deleteFile(filename) {
+            if(confirm(`Are you sure you want to permanently delete "${filename}"?`)) {
+                try {
+                    const res = await fetch(`/api/files/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+                    if (res.ok) {
+                        loadFiles(); // Reload the list
+                        loadCapacity(); // Update free space when a file is deleted
+                    } else {
+                        alert("Failed to delete file.");
+                    }
+                } catch(e) {
+                    alert("Error communicating with server.");
+                }
+            }
+        }
+
+        // --- Drag and Drop Logic ---
+        const dropzone = document.getElementById('dropzone');
+        const dropText = document.getElementById('dropText');
+        const fileInput = document.getElementById('fileInput');
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+            dropText.innerText = "Release to Upload";
+        });
+
+        dropzone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            dropText.innerText = "Drag & Drop Audio Files Here";
+        });
+
+        async function handleUpload(files) {
+            if (files.length === 0) return;
+            
+            dropzone.classList.remove('dragover');
+            dropText.innerText = `Uploading ${files.length} file(s)...`;
+            
+            const formData = new FormData();
+            for(let i=0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+
+            try {
+                const res = await fetch('/api/files', { method: 'POST', body: formData });
+                if (res.ok) {
+                    dropText.innerText = "Upload Complete!";
+                    loadFiles(); // Refresh the list
+                    loadCapacity(); // Update free space when files are added
+                } else {
+                    dropText.innerText = "Upload Failed.";
+                }
+            } catch(e) {
+                dropText.innerText = "Network Error during upload.";
+            }
+
+            // Reset text after 3 seconds
+            setTimeout(() => {
+                dropText.innerText = "Drag & Drop Audio Files Here";
+                fileInput.value = ""; // Reset file input so you can upload the same file twice if needed
+            }, 3000);
+        }
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            handleUpload(e.dataTransfer.files);
+        });
+
+        // Click to upload fallback
+        dropzone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleUpload(e.target.files);
+        });
+
+        // Boot
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFiles();
+            loadCapacity();
+        });
+    </script>
+</body>
+</html>

@@ -11,6 +11,7 @@ import menu
 # Global variables so display.py can read them
 username = "user"
 ip_address = "127.0.0.1"
+port = "8000"
 
 def get_ip():
     """Tricks the Pi into revealing its actual local network IP address."""
@@ -25,7 +26,7 @@ def get_ip():
 
 def file_share():
     """Displays SSH/SFTP connection info and safely handles exiting."""
-    global username, ip_address
+    global username, ip_address, port
     
     # Grab the freshest User and IP
     username = getpass.getuser()  # Will grab 'kash'

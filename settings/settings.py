@@ -8,11 +8,13 @@ import menu
 import settings.system_info as sys_info
 import settings.bluetooth as blue
 import settings.Audio_devices as audio_devices_module
+import settings.power_menu as power
 
 setting_option = [
     "System Info",
     "Bluetooth",
-    "Audio Devices"
+    "Audio Devices",
+    "Power"
 ]
 
 def setting():
@@ -72,6 +74,9 @@ def setting():
             
         elif selected_action == "Audio Devices":
             audio_devices_module.audio_devices_menu()
+
+        elif selected_action == "Power":
+            power.show_power_menu()
             
         else:
             # If selected_action is still None, the user hit the Back button!
