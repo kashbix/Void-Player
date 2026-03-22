@@ -1,7 +1,3 @@
-Here is the complete, finalized `README.md` with the corrected startup instructions and all the new features perfectly integrated. You can copy and paste this directly into your GitHub repository.
-
-***
-
 # Void Player (Beta)
 
 > **Status: Beta Release**  
@@ -84,11 +80,8 @@ The UI uses `DejaVuSans-Bold.ttf` for crisp rendering. If this font is not avail
 Start the core hardware engine and web dashboard by executing your main Python script(s):
 ```bash
 python3 main.py
-
-# If your web dashboard is configured in a separate file, run it alongside the main player:
-# python3 server.py
 ```
-*Access the dashboard by navigating to `http://<YOUR_PI_IP>:8000` on any device connected to the same network.*
+*Access the dashboard by navigating to `http://<YOUR_PI_IP>:8000` on any device connected to the same network. and if dont know how to acess the IP of your pi go to your router admin dashboard>network>DHCP Server>Client List or just to your pi setting using a monitor*
 
 *Deployment Note: For a true headless appliance experience, it is highly recommended to configure your scripts to run as `systemd` background services on boot.*
 
