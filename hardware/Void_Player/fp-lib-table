@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "oledDisplay")(type "KiCad")(uri "${KIPRJMOD}/importedECAD/oledDisplay.pretty")(options "")(descr ""))
+)
