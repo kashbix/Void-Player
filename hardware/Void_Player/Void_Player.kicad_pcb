@@ -111,9 +111,9 @@
 			(subtractmaskfromsilk no)
 			(outputformat 1)
 			(mirror no)
-			(drillshape 1)
+			(drillshape 0)
 			(scaleselection 1)
-			(outputdirectory "")
+			(outputdirectory "GRBRs/single/")
 		)
 	)
 	(net 0 "")
@@ -1226,6 +1226,7 @@
 		(property "Value" "~"
 			(at 0.175 -3.275 0)
 			(layer "F.Fab")
+			(hide yes)
 			(uuid "aa143e55-4d44-4a7d-8646-142828a45eb3")
 			(effects
 				(font
@@ -1319,6 +1320,7 @@
 		)
 		(embedded_fonts no)
 		(model "${KICAD9_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x04_P2.54mm_Horizontal.step"
+			(hide yes)
 			(offset
 				(xyz 0 0 0)
 			)

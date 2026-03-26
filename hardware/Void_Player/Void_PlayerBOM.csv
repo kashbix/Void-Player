@@ -1,0 +1,16 @@
+Reference,Qty,MP#,Price per unit,Total Price,Value,DNP,Footprint,Datasheet
+C1,1,CL31B475KAHNNNE,0.13,0.13,4.7uF,,Capacitor_SMD:C_1206_3216Metric,~
+"C5,C6",2,TMK316BJ106KL-T,0.1,0.2,10uF,,Capacitor_SMD:C_1206_3216Metric,~
+D1,1,LTST-C230KGKT,0.13,0.13,LED,,Diode_SMD:D_1206_3216Metric,~
+"D2,D3",2,SD1206S040S1R0,0.35,0.7,D_Schottky,,Diode_SMD:D_1206_3216Metric,~
+J1,1,S2B-PH-SM4-TB,0.48,0.48,Batt,,Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal,~
+J2,1,USB4110-GF-A,1.4,1.4,USB_C_Receptacle_USB2.0_14P,,Connector_USB:USB_C_Receptacle_GCT_USB4110,https://www.usb.org/sites/default/files/documents/usb_type-c.zip
+"Q1,Q2",2,SI2301-TP,0.34,0.68,SI2301-TP,,Package_TO_SOT_SMD:SOT-23,~
+R1,1,CRCW12062K00JNEAHP,0.21,0.21,2k,,Resistor_SMD:R_1206_3216Metric,~
+R2,1,MCA12060C1001FP500,0.27,0.27,1k,,Resistor_SMD:R_1206_3216Metric,~
+"R3,R4",2,SR1206JR-075K1L,0.11,0.22,5.1k,,Resistor_SMD:R_1206_3216Metric,~
+"SW1, SW2, SW3, SW4, SW5, SW6",6,95C06B3T,0.45,2.7,Menu,,Button_Switch_THT:SW_PUSH_6mm,~
+U1,1,SC1146 ,,0,RASPBERRY_PI_ZERO_2_W,,Module:Raspberry_Pi_Zero_Socketed_THT_FaceDown_MountingHoles,
+U2,1,,,0,~,,oledDisplay:SSD1306,
+U3,1,MCP73831T-4ADI/OT ,0.76,0.76,MCP73831-2-OT,,Package_TO_SOT_SMD:SOT-23-5,http://ww1.microchip.com/downloads/en/DeviceDoc/20001984g.pdf
+U5,1,ADP3339AKCZ-5-R7,5.2,5.2,ADP3339,,Package_TO_SOT_SMD:SOT-223-3_TabPin2,http://www.onsemi.com/pub_link/Collateral/NCP1117-D.PDF
