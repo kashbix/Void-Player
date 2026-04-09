@@ -66,6 +66,9 @@ The SSD1306 display connects via the standard hardware I2C pins:
 ```bash
 sudo apt-get update
 sudo apt-get install vlc pulseaudio-utils pulseaudio-module-bluetooth bluez
+
+# pillow dependencies
+sudo apt-get install libfreetype6-dev libjpeg-dev zlib1g-dev python3-lgpio liblgpio-dev swig gcc
 ```
 
 **2. Clone the Repository**
@@ -79,14 +82,30 @@ cd void-player
 **3. Setup Python Environment** Create a virtual environment and install the required Python libraries:
 
 ```bash
-python3 -m venv .venv
+python3 -m venv --system-site-packages .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ````
 
 **4. Prepare the Music Directory** By default, the player scans for media in `/home/$USER/Music`. Ensure your FLAC, WAV, or MP3 files are placed in this directory, or upload them directly via the Web Dashboard. *(Optional: The UI uses `DejaVuSans-Bold.ttf`. If unavailable, `configs.py` falls back to the default Pillow font).*
 
-**5. Run the Application** Start the core hardware engine and web dashboard by executing the main script:
+**5. enable i2c in raspi-config**
+
+```bash
+sudo raspi-config
+```
+
+Arrow down to `interface options > I2C > Enable`
+
+reboot at the popup, or later if you're already planning on it
+
+**6. Ensure your user is in the proper groups**
+
+```bash
+sudo usermod -a -G gpio,i2c $USER
+```
+
+**7. Run the Application** Start the core hardware engine and web dashboard by executing the main script:
 
 ```bash
 python3 main.py
