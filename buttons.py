@@ -5,12 +5,12 @@ import logging
 
 # Define GPIO pins for buttons
 BTN_PINS = {
-    "center": 18,
-    "next": 22,
-    "prev": 27,
-    "vol_up": 17,
-    "vol_down": 23,
-    "menu": 24
+    "center": 9,
+    "next": 11,
+    "prev": 10,
+    "vol_up": 27,
+    "vol_down": 19,
+    "menu": 17
 }
 
 # Create all buttons in a loop
